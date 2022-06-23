@@ -1,0 +1,11 @@
+.vscode
+.lesshst
+.bash_history
+.bash_profile
+.bashrc
+.bashrc.swo
+.gitconfig
+.minttyrc
+.viminfo
+bashrc
+.DS_Store
