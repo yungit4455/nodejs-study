@@ -2,37 +2,10 @@ const http = require('http');
 const fs = require('fs');
 const url = require('url');
 const qs = require('querystring');
+const template = require('./lib/template.js');
+const path = require('path');
 
 const DATA_DIR_PATH = './data';
-
-const template = {
-    HTML: function(title, list, body, control) {
-        return `
-        <!doctype html>
-        <html>
-            <head>
-            <title>WEB1 - ${title}</title>
-            <meta charset="utf-8">
-            </head>
-            <body>
-            <h1><a href="/">WEB2</a></h1>
-            ${list}
-            ${control}
-            ${body}
-            </body>
-        </html>
-        `;
-    },
-    list: function(files) {
-        let list = `<ul>`;
-        for(i in files) {
-            list += `<li><a href="/?id=${files[i]}">${files[i]}</a></li>`;
-        }
-        list += `</ul>`;
-    
-        return list;
-    },
-}
 
 const app = http.createServer(function(request,response) {
     const _url = request.url;
@@ -54,7 +27,8 @@ const app = http.createServer(function(request,response) {
             });
         } else {
             fs.readdir(DATA_DIR_PATH, (err, files) => {
-                fs.readFile( `data/${queryData.id}`, 'utf-8', ( err, description ) => {
+                const filteredId = path.parse(queryData.id).base;
+                fs.readFile( `data/${filteredId}`, 'utf-8', ( err, description ) => {
                     const title = queryData.id;
                     const list = template.list(files);
                     const html = template.HTML(title, list, 
@@ -106,7 +80,8 @@ const app = http.createServer(function(request,response) {
         });
     } else if(pathname === '/update') {
         fs.readdir(DATA_DIR_PATH, (err, files) => {
-            fs.readFile( `data/${queryData.id}`, 'utf-8', ( err, description ) => {
+            const filteredId = path.parse(queryData.id).base;
+            fs.readFile( `data/${filteredId}`, 'utf-8', ( err, description ) => {
                 const title = queryData.id;
                 const list = template.list(files);
                 const html = template.HTML(title, list, 
@@ -133,12 +108,12 @@ const app = http.createServer(function(request,response) {
         request.on('end', function() {
             const post = qs.parse(body);
             const id = post.id;
-            const title = post.title;
+            const filteredId = path.parse(id).base;
             const description = post.description;
 
-            fs.rename(`data/${id}`, `data/${title}`, function(err) {
-                fs.writeFile(`data/${title}`, description, 'utf-8', (err) => {
-                    response.writeHead(302, {Location: `/?id=${title}`});
+            fs.rename(`data/${filteredId}`, `data/${filteredId}`, function(err) {
+                fs.writeFile(`data/${filteredId}`, description, 'utf-8', (err) => {
+                    response.writeHead(302, {Location: `/?id=${filteredId}`});
                     response.end('Success');
                 });
             });
@@ -151,8 +126,9 @@ const app = http.createServer(function(request,response) {
         request.on('end', function() {
             const post = qs.parse(body);
             const id = post.id;
+            const filteredId = path.parse(id).base;
 
-            fs.unlink(`data/${id}`, function(err) {
+            fs.unlink(`data/${filteredId}`, function(err) {
                 response.writeHead(302, {Location: `/`});
                 response.end();
             });
