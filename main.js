@@ -4,6 +4,7 @@ const url = require('url');
 const qs = require('querystring');
 const template = require('./lib/template.js');
 const path = require('path');
+const sanitizeHtml = require('sanitize-html');
 
 const DATA_DIR_PATH = './data';
 
@@ -17,9 +18,11 @@ const app = http.createServer(function(request,response) {
             fs.readdir(DATA_DIR_PATH, (err, files) => {
                 const title = 'Welcome';
                 const description = 'Hello, Node.js';
+                const sanitizedTitle = sanitizeHtml(title);
+                const sanitizedDscription = sanitizeHtml(description);
                 const list = template.list(files);
-                const html = template.HTML(title, list, 
-                    `<h2>${title}</h2>${description}`,
+                const html = template.HTML(sanitizedTitle, list, 
+                    `<h2>${sanitizedTitle}</h2>${sanitizedDscription}`,
                     `<a href="/create">create</a>`
                 );
                 response.writeHead(200);
@@ -30,13 +33,15 @@ const app = http.createServer(function(request,response) {
                 const filteredId = path.parse(queryData.id).base;
                 fs.readFile( `data/${filteredId}`, 'utf-8', ( err, description ) => {
                     const title = queryData.id;
+                    const sanitizedTitle = sanitizeHtml(title);
+                    const sanitizedDscription = sanitizeHtml(description);
                     const list = template.list(files);
-                    const html = template.HTML(title, list, 
-                        `<h2>${title}</h2>${description}`,
+                    const html = template.HTML(sanitizedTitle, list, 
+                        `<h2>${sanitizedTitle}</h2>${sanitizedDscription}`,
                         `<a href="/create">create</a> 
-                         <a href="/update?id=${title}">update</a>
+                         <a href="/update?id=${sanitizedTitle}">update</a>
                          <form action="delete_process" method="post" onsubmit="Delete?">
-                            <input type="hidden" name="id" value="${title}">
+                            <input type="hidden" name="id" value="${sanitizedTitle}">
                             <input type="submit" value="delete">
                          </form>`
                     );
@@ -83,18 +88,20 @@ const app = http.createServer(function(request,response) {
             const filteredId = path.parse(queryData.id).base;
             fs.readFile( `data/${filteredId}`, 'utf-8', ( err, description ) => {
                 const title = queryData.id;
+                const sanitizedTitle = sanitizeHtml(title);
+                const sanitizedDscription = sanitizeHtml(description);
                 const list = template.list(files);
-                const html = template.HTML(title, list, 
+                const html = template.HTML(sanitizedTitle, list, 
                     `<form action="/update_process" method="post">
-                        <input type="hidden" name="id" value="${title}">
-                        <p><input type="text" name="title" placeholder="title" value="${title}"></p>
+                        <input type="hidden" name="id" value="${sanitizedTitle}">
+                        <p><input type="text" name="title" placeholder="title" value="${sanitizedTitle}"></p>
                         <p>
-                            <textarea name="description" placeholder="description">${description}</textarea>
+                            <textarea name="description" placeholder="description">${sanitizedDscription}</textarea>
                         </p>
                         <p><input type="submit"></p>
                     </form>
                  `,
-                    `<a href="/create">create</a> <a href="/update?id=${title}">update</a>`
+                    `<a href="/create">create</a> <a href="/update?id=${sanitizedTitle}">update</a>`
                 );
                 response.writeHead(200);
                 response.end(html);  
@@ -110,9 +117,10 @@ const app = http.createServer(function(request,response) {
             const id = post.id;
             const filteredId = path.parse(id).base;
             const description = post.description;
+            const sanitizedDscription = sanitizeHtml(description);
 
             fs.rename(`data/${filteredId}`, `data/${filteredId}`, function(err) {
-                fs.writeFile(`data/${filteredId}`, description, 'utf-8', (err) => {
+                fs.writeFile(`data/${filteredId}`, sanitizedDscription, 'utf-8', (err) => {
                     response.writeHead(302, {Location: `/?id=${filteredId}`});
                     response.end('Success');
                 });

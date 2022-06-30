@@ -9,3 +9,4 @@
 .viminfo
 bashrc
 .DS_Store
+node_modules/
