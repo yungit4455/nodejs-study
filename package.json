@@ -20,6 +20,7 @@
   },
   "homepage": "https://github.com/yungit4455/nodejs-study#readme",
   "dependencies": {
+    "mysql": "^2.18.1",
     "sanitize-html": "^2.7.0"
   }
 }

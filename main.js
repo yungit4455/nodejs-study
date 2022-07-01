@@ -5,6 +5,16 @@ const qs = require('querystring');
 const template = require('./lib/template.js');
 const path = require('path');
 const sanitizeHtml = require('sanitize-html');
+// DB에 접속하는 부분
+const mysql = require('mysql');
+const db = mysql.createConnection({
+    host     : 'localhost',
+    user     : 'root',
+    password : '64275000',
+    database : 'nodejs',
+    port: '3306'
+});
+db.connect();
 
 const DATA_DIR_PATH = './data';
 
