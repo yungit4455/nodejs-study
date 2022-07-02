@@ -1,19 +1,18 @@
 var mysql      = require('mysql');
-var connection = mysql.createConnection({
-  host     : 'localhost',
+var db = mysql.createConnection({
+  host     : '127.0.0.1',
   user     : 'root',
   password : '64275000',
   database : 'nodejs',
-  port: '3306'
 });
  
-connection.connect();
+db.connect();
  
-connection.query('SELECT * FROM topic', function (error, results, fields) {
+db.query('SELECT * FROM author', (error, results) => {
   if (error) {
     console.log(error);
   }
   console.log(results);
 });
  
-connection.end();
+db.end();
