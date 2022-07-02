@@ -4,15 +4,7 @@ const url = require('url');
 const template = require('./lib/template.js');
 const path = require('path');
 const sanitizeHtml = require('sanitize-html');
-// DB에 접속하는 부분
-const mysql = require('mysql');
-const db = mysql.createConnection({
-    host     : '127.0.0.1',
-    user     : 'root',
-    password : '64275000',
-    database : 'nodejs',
-});
-db.connect();
+const db = require('./lib/db');
 
 const DATA_DIR_PATH = './data';
 

@@ -10,3 +10,5 @@
 bashrc
 .DS_Store
 node_modules/
+
+db.js
