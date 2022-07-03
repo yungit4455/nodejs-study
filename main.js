@@ -1,7 +1,8 @@
 const http = require('http');
 const url = require('url');
-const template = require('./lib/template.js');
+const template = require('./lib/template');
 const db = require('./lib/db');
+const topic = require('./lib/topic');
 
 const app = http.createServer(function(request,response) {
     const _url = request.url;
@@ -10,6 +11,7 @@ const app = http.createServer(function(request,response) {
 
     if(pathname === '/') {
         if(queryData.id === undefined) {
+            topic.home(request, response);
          /* fs.readdir(DATA_DIR_PATH, (err, files) => {
                 const title = 'Welcome';
                 const description = 'Hello, Node.js';
@@ -23,39 +25,7 @@ const app = http.createServer(function(request,response) {
                 response.writeHead(200);
                 response.end(html);  
             }); */
-            db.query(`SELECT * FROM topic`, (error, topics) => {
-                if (error) { throw error; }
-                const title = 'Welcome';
-                const description = 'Hello, Node.js';
-                const list = template.list(topics);
-                const html = template.HTML(title, list, 
-                    `<h2>${title}</h2>${description}`,
-                    `<a href="/create">create</a>`
-                );
-                response.writeHead(200);
-                response.end(html); 
-            });
         } else {
-            /* fs.readdir(DATA_DIR_PATH, (err, files) => {
-                const filteredId = path.parse(queryData.id).base;
-                fs.readFile( `data/${filteredId}`, 'utf-8', ( err, description ) => {
-                    const title = queryData.id;
-                    const sanitizedTitle = sanitizeHtml(title);
-                    const sanitizedDscription = sanitizeHtml(description);
-                    const list = template.list(files);
-                    const html = template.HTML(sanitizedTitle, list, 
-                        `<h2>${sanitizedTitle}</h2>${sanitizedDscription}`,
-                        `<a href="/create">create</a> 
-                         <a href="/update?id=${sanitizedTitle}">update</a>
-                         <form action="delete_process" method="post" onsubmit="Delete?">
-                            <input type="hidden" name="id" value="${sanitizedTitle}">
-                            <input type="submit" value="delete">
-                         </form>`
-                    );
-                    response.writeHead(200);
-                    response.end(html);  
-                });
-            }); */
             db.query(`SELECT * FROM topic`, function(error, topics) {
                 if(error) { throw error; }
                 // [queryData.id] == queryData.id : 결과는 같지만 공격 의도가 있는 코드를 sanitize 해준다.
@@ -82,26 +52,28 @@ const app = http.createServer(function(request,response) {
                 });
             });
         }
+            /* fs.readdir(DATA_DIR_PATH, (err, files) => {
+                const filteredId = path.parse(queryData.id).base;
+                fs.readFile( `data/${filteredId}`, 'utf-8', ( err, description ) => {
+                    const title = queryData.id;
+                    const sanitizedTitle = sanitizeHtml(title);
+                    const sanitizedDscription = sanitizeHtml(description);
+                    const list = template.list(files);
+                    const html = template.HTML(sanitizedTitle, list, 
+                        `<h2>${sanitizedTitle}</h2>${sanitizedDscription}`,
+                        `<a href="/create">create</a> 
+                         <a href="/update?id=${sanitizedTitle}">update</a>
+                         <form action="delete_process" method="post" onsubmit="Delete?">
+                            <input type="hidden" name="id" value="${sanitizedTitle}">
+                            <input type="submit" value="delete">
+                         </form>`
+                    );
+                    response.writeHead(200);
+                    response.end(html);  
+                });
+            }); */
     } else if(pathname === '/create') {
-        /* fs.readdir(DATA_DIR_PATH, (err, files) => {
-            const title = 'WEB - create';
-            const list = template.list(files);
-            const html = template.HTML(title, list, `
-            <form action="/create_process" method="post">
-                <p><input type="text" name="title" placeholder="title"></p>
-                <p>
-                    <textarea name="description" placeholder="description"></textarea>
-                </p>
-                <p><input type="submit"></p>
-             </form>
-            `, 
-            ``
-            );
-            response.writeHead(200);
-            response.end(html);  
-        }); */
-
-        db.query(`SELECT * FROM topic`, (error, topics) => {
+        db.query(`SELECT * FROM topic`, function(error, topics) {
             if (error) { throw error; }
             db.query(`SELECT * FROM author`, (error2, authors) => {
                 if (error2) { throw error2; }
@@ -126,6 +98,23 @@ const app = http.createServer(function(request,response) {
                 response.end(html); 
             });
         });
+        /* fs.readdir(DATA_DIR_PATH, (err, files) => {
+            const title = 'WEB - create';
+            const list = template.list(files);
+            const html = template.HTML(title, list, `
+            <form action="/create_process" method="post">
+                <p><input type="text" name="title" placeholder="title"></p>
+                <p>
+                    <textarea name="description" placeholder="description"></textarea>
+                </p>
+                <p><input type="submit"></p>
+             </form>
+            `, 
+            ``
+            );
+            response.writeHead(200);
+            response.end(html);  
+        }); */
     } else if(pathname === '/create_process') {
         let body = '';
         request.on('data', function(data) {
@@ -133,10 +122,6 @@ const app = http.createServer(function(request,response) {
         });
         request.on('end', function() {
             const post = new URLSearchParams(body);
-            /* fs.writeFile(`data/${title}`, description, 'utf-8', (err) => {
-                response.writeHead(302, {Location: `/?id=${title}`});
-                response.end('Success');
-            }); */
             db.query(`INSERT INTO topic (title, description, created, author_id) 
             VALUES(?, ?, NOW(), ?)`,
             [post.get('title'), post.get('description'), post.get('author')],
@@ -145,6 +130,10 @@ const app = http.createServer(function(request,response) {
                 response.writeHead(302, {Location: `/?id=${result.insertId}`});
                 response.end();
             });
+            /* fs.writeFile(`data/${title}`, description, 'utf-8', (err) => {
+                response.writeHead(302, {Location: `/?id=${title}`});
+                response.end('Success');
+            }); */
         });
     } else if(pathname === '/update') {
         db.query(`SELECT * FROM topic`, (error, topics) => {
@@ -206,18 +195,18 @@ const app = http.createServer(function(request,response) {
         });
         request.on('end', function() {
             const post = new URLSearchParams(body);
-            /* fs.rename(`data/${filteredId}`, `data/${filteredId}`, function(err) {
-                fs.writeFile(`data/${filteredId}`, sanitizedDscription, 'utf-8', (err) => {
-                    response.writeHead(302, {Location: `/?id=${filteredId}`});
-                    response.end('Success');
-                });
-            }); */
             db.query(`UPDATE topic SET title=?, description=?, author_id=? WHERE id=?`, [post.get('title'), post.get('description'), post.get('author'), post.get('id')], 
             (error, result) => {
                 if(error) { throw error; }
                 response.writeHead(302, {Location: `/?id=${post.get('id')}`});
                 response.end();
             });
+            /* fs.rename(`data/${filteredId}`, `data/${filteredId}`, function(err) {
+                fs.writeFile(`data/${filteredId}`, sanitizedDscription, 'utf-8', (err) => {
+                    response.writeHead(302, {Location: `/?id=${filteredId}`});
+                    response.end('Success');
+                });
+            }); */
         });
     } else if(pathname === '/delete_process') {
         let body = '';
@@ -226,15 +215,15 @@ const app = http.createServer(function(request,response) {
         });
         request.on('end', function() {
             const post = new URLSearchParams(body);
-            /* fs.unlink(`data/${filteredId}`, function(err) {
-                response.writeHead(302, {Location: `/`});
-                response.end();
-            }); */
             db.query(`DELETE FROM topic WHERE id=?`, [post.get('id')], (error, result) => {
                 if(error) { throw error; }
                 response.writeHead(302, {Location: `/`});
                 response.end();
             });
+            /* fs.unlink(`data/${filteredId}`, function(err) {
+                response.writeHead(302, {Location: `/`});
+                response.end();
+            }); */
         });
     } else {
         response.writeHead(404);
