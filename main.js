@@ -3,6 +3,8 @@ const url = require('url');
 const template = require('./lib/template');
 const db = require('./lib/db');
 const topic = require('./lib/topic');
+const path = require('path');
+const author = require('./lib/author');
 
 const app = http.createServer(function(request,response) {
     const _url = request.url;
@@ -112,6 +114,8 @@ const app = http.createServer(function(request,response) {
             response.writeHead(302, {Location: `/`});
             response.end();
         }); */
+    } else if(pathname === '/author') {
+        author.home(request, response);
     } else {
         response.writeHead(404);
         response.end('Not found');
