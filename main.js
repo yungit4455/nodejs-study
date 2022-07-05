@@ -1,5 +1,36 @@
+const express = require('express')
+const app = express()
+const port = 3000
+const topic = require('./lib/topic');
+const author = require('./lib/author');
 
+app.get('/', (req, res) => {
+    topic.home(req, res)
+})
 
+app.get('/topics/:topicsId', (req, res) => {
+    topic.page(req, res);
+})
+
+app.get('/topics', (req, res) => {
+    topic.create(req, res);
+})
+
+app.post('/topics', (req, res) => {
+    topic.create_process(req, res)
+}) 
+
+app.put('topics', (req, res) => {
+    topic.update(req, res)
+})
+
+app.delete('/topics', (req, res) => {
+    topic.delete(req, res)
+})
+
+app.listen(port, () => {
+    console.log(`Example app listening on port ${port}`)
+})
 
 // const http = require('http');
 // const url = require('url');
