@@ -3,6 +3,9 @@ const app = express()
 const port = 3000
 const topic = require('./lib/topic');
 const author = require('./lib/author');
+const compression = require('compression')
+
+app.use(compression())
 
 app.get('/', (req, res) => {
     topic.home(req, res)
