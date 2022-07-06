@@ -26,6 +26,7 @@ app.post('/topics/update_process', (req, res) => {
 
 app.post('/topics/delete', (req, res) => {
     topic.delete(req, res)
+    res.redirect('/')
 })
 
 app.get('/topics/:topicsId', (req, res) => {
