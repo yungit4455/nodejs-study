@@ -8,24 +8,28 @@ app.get('/', (req, res) => {
     topic.home(req, res)
 })
 
-app.get('/topics/:topicsId', (req, res) => {
-    topic.page(req, res);
-})
-
-app.get('/topics', (req, res) => {
+app.get('/topics/create', (req, res) => {
     topic.create(req, res);
 })
 
-app.post('/topics', (req, res) => {
+app.post('/topics/create_process', (req, res) => {
     topic.create_process(req, res)
 }) 
 
-app.put('topics', (req, res) => {
+app.get('/topics/update/:topicsId', (req, res) => {
     topic.update(req, res)
 })
 
-app.delete('/topics', (req, res) => {
+app.post('/topics/update_process', (req, res) => {
+    topic.update_process(req, res)
+})
+
+app.post('/topics/delete', (req, res) => {
     topic.delete(req, res)
+})
+
+app.get('/topics/:topicsId', (req, res) => {
+    topic.page(req, res);
 })
 
 app.listen(port, () => {
