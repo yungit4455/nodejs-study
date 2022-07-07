@@ -3,8 +3,11 @@ const app = express()
 const port = 3000
 const topic = require('./lib/topic');
 const author = require('./lib/author');
+
 const compression = require('compression')
 
+
+// 데이터를 압축하여 네트워크 트래픽을 줄이는 서드파티 라이브러리
 app.use(compression())
 
 app.get('/', (req, res) => {
